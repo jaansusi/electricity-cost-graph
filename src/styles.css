@@ -1,0 +1,505 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color-scheme: light dark;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+header h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.session {
+  position: relative;
+}
+
+.session-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+
+.session-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #aaa;
+}
+
+.session-dot-ok {
+  background: #37b24d;
+}
+
+.session-dot-bad {
+  background: #d6336c;
+}
+
+.session-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 320px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 50;
+}
+
+.session-help {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.session-help code {
+  background: #f3f3f3;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.session-pop input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.session-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.session-actions button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.session-actions button[type="submit"] {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.session-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.session-msg {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.subtitle {
+  margin: 0 0 24px;
+  color: #666;
+  font-size: 14px;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: #555;
+  gap: 4px;
+}
+
+.controls input,
+.controls select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+  color: inherit;
+}
+
+.controls select {
+  min-width: 220px;
+}
+
+.dp-input {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+  color: inherit;
+  font-family: inherit;
+  width: 130px;
+}
+
+.react-datepicker-wrapper {
+  display: inline-block;
+}
+
+.controls button {
+  padding: 7px 16px;
+  border: 0;
+  background: #1a1a1a;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.controls button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  background: #fff0f0;
+  border: 1px solid #ffb3b3;
+  color: #a30000;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.card .label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card .value {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.card .sub {
+  font-size: 12px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.card.mode .value {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #4dabf7;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.panel-sub {
+  font-size: 12px;
+  color: #777;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.seg button {
+  border: 0;
+  background: #fff;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #555;
+  border-right: 1px solid #ddd;
+}
+
+.seg button:last-child {
+  border-right: 0;
+}
+
+.seg button.on {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.heatmap {
+  display: grid;
+  grid-template-columns: 36px repeat(24, 1fr);
+  gap: 2px;
+  font-size: 10px;
+}
+
+.hm-corner {
+  height: 18px;
+}
+
+.hm-hour {
+  text-align: center;
+  color: #888;
+  font-size: 10px;
+  line-height: 18px;
+}
+
+.hm-day {
+  display: flex;
+  align-items: center;
+  color: #888;
+  font-size: 11px;
+}
+
+.hm-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 2px;
+  background: #f3f3f3;
+  min-height: 18px;
+}
+
+.hm-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #888;
+}
+
+.hm-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    rgba(214, 51, 108, 0.08),
+    rgba(214, 51, 108, 1)
+  );
+}
+
+.legend-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  color: #777;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.legend-item:hover {
+  border-color: #ddd;
+}
+
+.legend-item.on {
+  border-color: #999;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.legend-axis-tag {
+  margin-left: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.dot-cost {
+  background: #d6336c;
+}
+
+.dot-kwh {
+  background: #4dabf7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #eaeaea;
+    background: #111;
+  }
+  .card {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+  }
+  .card .label,
+  .card .sub,
+  .controls label,
+  .subtitle {
+    color: #aaa;
+  }
+  .controls input,
+  .controls select {
+    background: #1a1a1a;
+    color: #eaeaea;
+    border-color: #333;
+  }
+  .controls button {
+    background: #fff;
+    color: #111;
+  }
+  .error {
+    background: #2a1010;
+    border-color: #5a1d1d;
+    color: #ff8888;
+  }
+  .panel {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+  }
+  .panel-sub,
+  .legend-row,
+  .hm-legend,
+  .hm-hour,
+  .hm-day {
+    color: #999;
+  }
+  .seg {
+    border-color: #333;
+  }
+  .seg button {
+    background: #1a1a1a;
+    color: #ccc;
+    border-color: #333;
+  }
+  .seg button.on {
+    background: #fff;
+    color: #111;
+  }
+  .hm-cell {
+    background: #222;
+  }
+  .legend-item:hover {
+    border-color: #444;
+  }
+  .legend-item.on {
+    border-color: #777;
+    color: #fff;
+  }
+  .legend-axis-tag {
+    color: #aaa;
+  }
+  .dp-input {
+    background: #1a1a1a;
+    color: #eaeaea;
+    border-color: #333;
+  }
+  .session-toggle,
+  .session-pop,
+  .session-pop input,
+  .session-actions button {
+    background: #1a1a1a;
+    color: #eaeaea;
+    border-color: #333;
+  }
+  .session-actions button[type="submit"] {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
+  }
+  .session-help,
+  .session-msg {
+    color: #aaa;
+  }
+  .session-help code {
+    background: #2a2a2a;
+  }
+}
