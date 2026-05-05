@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "tsc -b && vite build && npm run build:server",
+    "build:server": "esbuild src/server/serve.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist-server/serve.mjs",
+    "start": "node dist-server/serve.mjs",
+    "preview": "vite preview --host 0.0.0.0 --port 8080"
   },
   "dependencies": {
     "@types/react-datepicker": "^6.2.0",

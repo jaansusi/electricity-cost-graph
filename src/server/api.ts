@@ -79,7 +79,7 @@ async function handleUsage(session: Session, start: string, end: string, point: 
   };
 }
 
-export function enefitApiPlugin(): Plugin {
+export function createEnefitApiMiddleware(): Connect.NextHandleFunction {
   const middleware: Connect.NextHandleFunction = async (req, res, next) => {
     if (!req.url || !req.url.startsWith("/api/")) return next();
 
@@ -175,13 +175,17 @@ export function enefitApiPlugin(): Plugin {
     }
   };
 
+  return middleware;
+}
+
+export function enefitApiPlugin(): Plugin {
   return {
     name: "enefit-api",
     configureServer(server) {
-      server.middlewares.use(middleware);
+      server.middlewares.use(createEnefitApiMiddleware());
     },
     configurePreviewServer(server) {
-      server.middlewares.use(middleware);
+      server.middlewares.use(createEnefitApiMiddleware());
     },
   };
 }

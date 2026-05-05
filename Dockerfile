@@ -7,7 +7,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1-alpine AS runtime
+FROM node:20-alpine AS runtime
 
 ARG IMAGE_TITLE="enefit-price-graph"
 ARG IMAGE_DESCRIPTION="Enefit electricity price graph web app"
@@ -23,8 +23,13 @@ LABEL org.opencontainers.image.title="$IMAGE_TITLE" \
       org.opencontainers.image.source="$IMAGE_SOURCE" \
       org.opencontainers.image.created="$IMAGE_CREATED"
 
-WORKDIR /usr/share/nginx/html
-COPY --chown=nginx:nginx --from=build /app/dist ./
+ENV NODE_ENV=production
+WORKDIR /app
+
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/dist-server ./dist-server
+
+USER node
 
 EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "dist-server/serve.mjs"]
