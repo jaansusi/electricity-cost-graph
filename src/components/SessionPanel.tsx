@@ -104,8 +104,10 @@ export function SessionPanel({ status, onChange }: Props) {
           </div>
           <form onSubmit={save}>
             <input
-              type="password"
+              type="text"
               autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
               spellCheck={false}
               placeholder="ENEFITSESSION value…"
               value={token}
