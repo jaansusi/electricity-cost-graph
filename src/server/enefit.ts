@@ -162,7 +162,7 @@ export async function getConsumption(
   u.searchParams.set("periodStartInclusive", startInclusive);
   u.searchParams.set("periodEndExclusive", endExclusive);
   u.searchParams.set("direction", "CONSUMPTION");
-  u.searchParams.set("aggregationType", "HOURLY");
+  u.searchParams.set("aggregationType", "QUARTER_HOURLY");
   const data = (await getJson(u.toString(), session)) as unknown;
   const rows = extractArray(data);
   const out: NormalizedConsumption[] = [];
@@ -173,22 +173,11 @@ export async function getConsumption(
     if (!ts) continue;
     out.push({ ts, kwh });
   }
-  return foldToHourly(out);
-}
-
-function foldToHourly(rows: NormalizedConsumption[]): NormalizedConsumption[] {
-  const byHour = new Map<string, NormalizedConsumption>();
-  for (const r of rows) {
-    const key = r.ts.slice(0, 13);
-    const prev = byHour.get(key);
-    if (prev) prev.kwh += r.kwh;
-    else byHour.set(key, { ts: r.ts.slice(0, 13) + ":00:00" + r.ts.slice(19), kwh: r.kwh });
-  }
-  return [...byHour.values()].sort((a, b) => (a.ts < b.ts ? -1 : 1));
+  return out.sort((a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0));
 }
 
 export interface NormalizedPrice {
-  hourKey: string;
+  quarterKey: string;
   eurPerKwh: number;
 }
 
@@ -200,17 +189,17 @@ export async function getPrices(
   const u = new URL(`${BASE}/api/v1/market-prices`);
   u.searchParams.set("start-date", startDate);
   u.searchParams.set("end-date", endDate);
-  u.searchParams.set("interval", "HOUR");
+  u.searchParams.set("interval", "QUARTER_HOUR");
   u.searchParams.set("country", "EE");
   const data = (await getJson(u.toString(), session)) as unknown;
   const rows = extractArray(data);
   return rows.map((r) => {
     const obj = r as Record<string, unknown>;
     const dt = String(obj.dateTime ?? obj.startInclusive ?? obj.time ?? "");
-    const hourKey = dt.slice(0, 13);
+    const quarterKey = dt.slice(0, 10) + " " + dt.slice(11, 16);
     const raw = Number(obj.price ?? obj.value ?? obj.amount ?? 0);
     const eurPerKwh = raw / 1000;
-    return { hourKey, eurPerKwh };
+    return { quarterKey, eurPerKwh };
   });
 }
 

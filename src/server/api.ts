@@ -24,7 +24,7 @@ function ymdRegex(s: string): boolean {
 }
 
 function priceKeyFromIso(iso: string): string {
-  return iso.slice(0, 10) + " " + iso.slice(11, 13);
+  return iso.slice(0, 10) + " " + iso.slice(11, 16);
 }
 
 function readToken(req: Connect.IncomingMessage): string {
@@ -50,9 +50,9 @@ async function handleUsage(session: Session, start: string, end: string, point: 
   );
   const prices = await getPrices(session, start, end);
 
-  const priceByHour = new Map<string, number>();
+  const priceByQuarter = new Map<string, number>();
   for (const p of prices) {
-    if (p.hourKey) priceByHour.set(p.hourKey, p.eurPerKwh);
+    if (p.quarterKey) priceByQuarter.set(p.quarterKey, p.eurPerKwh);
   }
 
   const intervals: UsageInterval[] = [];
@@ -62,7 +62,7 @@ async function handleUsage(session: Session, start: string, end: string, point: 
   for (const day of consPerDay) {
     for (const c of day) {
       if (!c.ts) continue;
-      const eurPerKwh = priceByHour.get(priceKeyFromIso(c.ts)) ?? 0;
+      const eurPerKwh = priceByQuarter.get(priceKeyFromIso(c.ts)) ?? 0;
       const eurCost = c.kwh * eurPerKwh;
       intervals.push({ ts: c.ts, kwh: c.kwh, eurPerKwh, eurCost });
       totalKwh += c.kwh;

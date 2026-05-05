@@ -198,6 +198,29 @@ header h1 {
   cursor: not-allowed;
 }
 
+.bucket-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.bucket-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #555;
+}
+
+.bucket-row select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+  color: inherit;
+}
+
 .error {
   background: #fff0f0;
   border: 1px solid #ffb3b3;

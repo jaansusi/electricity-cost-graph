@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   fetchMeteringPoints,
   fetchSessionStatus,
@@ -16,6 +16,18 @@ import { CostChart } from "./components/CostChart";
 import { Heatmap } from "./components/Heatmap";
 import { SessionPanel } from "./components/SessionPanel";
 import { Summary } from "./components/Summary";
+import { bucketIntervals } from "./bucket";
+
+const BUCKET_OPTIONS: { value: number; label: string }[] = [
+  { value: 0.25, label: "15 min" },
+  { value: 1, label: "1 hour" },
+  { value: 2, label: "2 hours" },
+  { value: 3, label: "3 hours" },
+  { value: 4, label: "4 hours" },
+  { value: 6, label: "6 hours" },
+  { value: 12, label: "12 hours" },
+  { value: 24, label: "1 day" },
+];
 
 const STORAGE_KEY = "enefit-prefs-v1";
 
@@ -75,6 +87,7 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<SessionStatus | null>(null);
+  const [bucketHours, setBucketHours] = useState<number>(1);
 
   async function load(s: string, e: string, p: string) {
     if (!p) return;
@@ -218,13 +231,37 @@ export function App() {
 
       {data && (
         <>
-          <Summary data={data} />
-          <CostChart intervals={data.intervals} />
-          <Heatmap intervals={data.intervals} />
+          <div className="bucket-row">
+            <label>
+              Group by
+              <select
+                value={String(bucketHours)}
+                onChange={(e) => setBucketHours(Number(e.target.value))}
+              >
+                {BUCKET_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <BucketedView data={data} bucketHours={bucketHours} />
         </>
       )}
 
       {!error && !data && !loading && <p>No data yet.</p>}
     </div>
+  );
+}
+
+function BucketedView({ data, bucketHours }: { data: UsageResponse; bucketHours: number }) {
+  const view = useMemo(() => bucketIntervals(data.intervals, bucketHours), [data.intervals, bucketHours]);
+  return (
+    <>
+      <Summary data={{ ...data, intervals: view }} />
+      <CostChart intervals={view} />
+      <Heatmap intervals={view} />
+    </>
   );
 }
