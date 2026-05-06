@@ -16,7 +16,9 @@ import { CostChart } from "./components/CostChart";
 import { Heatmap } from "./components/Heatmap";
 import { SessionPanel } from "./components/SessionPanel";
 import { Summary } from "./components/Summary";
+import { TopPeriods } from "./components/TopPeriods";
 import { bucketIntervals } from "./bucket";
+import { PACKAGES, applyNetwork, getPackage, monthlyFeeForRange, type PackageId } from "./network";
 
 const BUCKET_OPTIONS: { value: number; label: string }[] = [
   { value: 0.25, label: "15 min" },
@@ -35,6 +37,8 @@ interface StoredPrefs {
   start?: string;
   end?: string;
   point?: string;
+  pkg?: PackageId;
+  feeOverride?: number | null;
 }
 
 function loadPrefs(): StoredPrefs {
@@ -76,6 +80,73 @@ function defaultRange(): { start: string; end: string } {
   return { start: ymd(weekAgo), end: ymd(today) };
 }
 
+interface Preset {
+  key: string;
+  label: string;
+  range: () => { start: string; end: string };
+}
+
+const PRESETS: Preset[] = [
+  {
+    key: "last7",
+    label: "Last 7 days",
+    range: () => {
+      const end = new Date();
+      const start = new Date(end);
+      start.setDate(end.getDate() - 6);
+      return { start: ymd(start), end: ymd(end) };
+    },
+  },
+  {
+    key: "last30",
+    label: "Last 30 days",
+    range: () => {
+      const end = new Date();
+      const start = new Date(end);
+      start.setDate(end.getDate() - 29);
+      return { start: ymd(start), end: ymd(end) };
+    },
+  },
+  {
+    key: "thisMonth",
+    label: "This month",
+    range: () => {
+      const today = new Date();
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      return { start: ymd(start), end: ymd(today) };
+    },
+  },
+  {
+    key: "lastMonth",
+    label: "Last month",
+    range: () => {
+      const today = new Date();
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      return { start: ymd(start), end: ymd(end) };
+    },
+  },
+  {
+    key: "ytd",
+    label: "Year to date",
+    range: () => {
+      const today = new Date();
+      const start = new Date(today.getFullYear(), 0, 1);
+      return { start: ymd(start), end: ymd(today) };
+    },
+  },
+  {
+    key: "lastYear",
+    label: "Last year",
+    range: () => {
+      const today = new Date();
+      const start = new Date(today.getFullYear() - 1, 0, 1);
+      const end = new Date(today.getFullYear() - 1, 11, 31);
+      return { start: ymd(start), end: ymd(end) };
+    },
+  },
+];
+
 export function App() {
   const init = defaultRange();
   const stored = loadPrefs();
@@ -88,6 +159,14 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<SessionStatus | null>(null);
   const [bucketHours, setBucketHours] = useState<number>(1);
+  const [pkgId, setPkgId] = useState<PackageId>(stored.pkg ?? "none");
+  const pkg = getPackage(pkgId);
+  const [feeOverride, setFeeOverride] = useState<number | null>(
+    stored.feeOverride ?? null,
+  );
+  const [feeInput, setFeeInput] = useState<string>(
+    feeOverride != null ? feeOverride.toFixed(2) : "",
+  );
 
   async function load(s: string, e: string, p: string) {
     if (!p) return;
@@ -157,8 +236,14 @@ export function App() {
   }
 
   useEffect(() => {
-    savePrefs({ start, end, point: point || undefined });
-  }, [start, end, point]);
+    savePrefs({
+      start,
+      end,
+      point: point || undefined,
+      pkg: pkgId,
+      feeOverride,
+    });
+  }, [start, end, point, pkgId, feeOverride]);
 
   return (
     <div className="app">
@@ -168,7 +253,15 @@ export function App() {
             <h1>Enefit cost graph</h1>
             <p className="subtitle">When did you spend the most on electricity?</p>
           </div>
-          <SessionPanel status={session} onChange={onSessionChange} />
+          <div className="header-meta">
+            {data?.mode && (
+              <div className="mode-tag">
+                <span className="mode-tag-label">Pricing mode</span>
+                <span className="mode-tag-value">{data.mode}</span>
+              </div>
+            )}
+            <SessionPanel status={session} onChange={onSessionChange} />
+          </div>
         </div>
       </header>
 
@@ -179,6 +272,46 @@ export function App() {
           load(start, end, point);
         }}
       >
+        <label>
+          Network package
+          <select
+            value={pkgId}
+            onChange={(e) => setPkgId(e.target.value as PackageId)}
+          >
+            {PACKAGES.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <span className="field-hint">{pkg.description}</span>
+        </label>
+        {pkgId !== "none" && (
+          <label>
+            Network monthly fee (€, incl. VAT)
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              placeholder={pkg.monthlyFeeEur.toFixed(2)}
+              value={feeInput}
+              onChange={(e) => {
+                const v = e.target.value;
+                setFeeInput(v);
+                if (v === "") {
+                  setFeeOverride(null);
+                  return;
+                }
+                const n = Number(v);
+                setFeeOverride(Number.isFinite(n) && n >= 0 ? n : null);
+              }}
+            />
+            <span className="field-hint">
+              Defaults to {pkg.monthlyFeeEur.toFixed(2)} € — set to match your bill (varies by amperage).
+            </span>
+          </label>
+        )}
         <label>
           Metering point
           <select
@@ -222,9 +355,27 @@ export function App() {
             className="dp-input"
           />
         </label>
-        <button type="submit" disabled={loading || !point}>
-          {loading ? "Loading…" : "Load"}
-        </button>
+        <div className="presets">
+          {PRESETS.map((p) => (
+            <button
+              key={p.key}
+              type="button"
+              className="preset"
+              onClick={() => {
+                const r = p.range();
+                setStart(r.start);
+                setEnd(r.end);
+                if (point) void load(r.start, r.end, point);
+              }}
+              disabled={loading || !point}
+            >
+              {p.label}
+            </button>
+          ))}
+          <button type="submit" disabled={loading || !point}>
+            {loading ? "Loading…" : "Load"}
+          </button>
+        </div>
       </form>
 
       {error && <div className="error">{error}</div>}
@@ -246,7 +397,12 @@ export function App() {
               </select>
             </label>
           </div>
-          <BucketedView data={data} bucketHours={bucketHours} />
+          <BucketedView
+            data={data}
+            bucketHours={bucketHours}
+            pkg={pkg}
+            monthlyFee={monthlyFeeForRange(start, end, pkg, feeOverride ?? undefined)}
+          />
         </>
       )}
 
@@ -255,13 +411,66 @@ export function App() {
   );
 }
 
-function BucketedView({ data, bucketHours }: { data: UsageResponse; bucketHours: number }) {
-  const view = useMemo(() => bucketIntervals(data.intervals, bucketHours), [data.intervals, bucketHours]);
+type TabKey = "chart" | "heatmap" | "top";
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: "chart", label: "Chart" },
+  { key: "heatmap", label: "Heatmap" },
+  { key: "top", label: "Top periods" },
+];
+
+function BucketedView({
+  data,
+  bucketHours,
+  pkg,
+  monthlyFee,
+}: {
+  data: UsageResponse;
+  bucketHours: number;
+  pkg: ReturnType<typeof getPackage>;
+  monthlyFee: number;
+}) {
+  const view = useMemo(() => {
+    const withNetwork = applyNetwork(data.intervals, pkg);
+    return bucketIntervals(withNetwork, bucketHours);
+  }, [data.intervals, bucketHours, pkg]);
+  const totals = useMemo(
+    () =>
+      view.reduce(
+        (acc, i) => {
+          acc.kwh += i.kwh;
+          acc.eur += i.eurCost;
+          return acc;
+        },
+        { kwh: 0, eur: 0 },
+      ),
+    [view],
+  );
+  const [tab, setTab] = useState<TabKey>("chart");
   return (
     <>
-      <Summary data={{ ...data, intervals: view }} />
-      <CostChart intervals={view} />
-      <Heatmap intervals={view} />
+      <Summary
+        data={{ ...data, intervals: view, totals }}
+        pkgName={pkg.name}
+        monthlyFee={monthlyFee}
+      />
+      <div className="tabs" role="tablist">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.key}
+            className={`tab${tab === t.key ? " active" : ""}`}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === "chart" && <CostChart intervals={view} />}
+      {tab === "heatmap" && <Heatmap intervals={view} />}
+      {tab === "top" && <TopPeriods intervals={view} bucketHours={bucketHours} />}
     </>
   );
 }

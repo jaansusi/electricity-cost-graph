@@ -33,6 +33,43 @@ header h1 {
   position: relative;
 }
 
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mode-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.mode-tag-label {
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 10px;
+}
+
+.mode-tag-value {
+  color: #4dabf7;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mode-tag {
+    background: #1a1a1a;
+    border-color: #333;
+  }
+}
+
 .session-toggle {
   display: inline-flex;
   align-items: center;
@@ -140,18 +177,19 @@ header h1 {
 
 .controls {
   display: flex;
-  gap: 16px;
-  align-items: end;
+  gap: 12px 16px;
+  align-items: stretch;
   margin-bottom: 24px;
   flex-wrap: wrap;
 }
 
 .controls label {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 32px auto;
   font-size: 12px;
   color: #555;
   gap: 4px;
+  align-content: start;
 }
 
 .controls input,
@@ -162,10 +200,20 @@ header h1 {
   font-size: 14px;
   background: #fff;
   color: inherit;
+  height: 32px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .controls select {
-  min-width: 220px;
+  min-width: 180px;
+}
+
+.controls .field-hint {
+  font-size: 11px;
+  color: #888;
+  max-width: 260px;
+  line-height: 1.3;
 }
 
 .dp-input {
@@ -184,7 +232,7 @@ header h1 {
 }
 
 .controls button {
-  padding: 7px 16px;
+  padding: 0 16px;
   border: 0;
   background: #1a1a1a;
   color: #fff;
@@ -196,6 +244,28 @@ header h1 {
 .controls button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+}
+
+.controls .preset {
+  padding: 5px 10px;
+  background: #f1f3f5;
+  color: #333;
+  border: 1px solid #dee2e6;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.controls .preset:hover:not(:disabled) {
+  background: #e7eaed;
+  border-color: #ced4da;
 }
 
 .bucket-row {
@@ -269,6 +339,99 @@ header h1 {
   font-weight: 500;
   text-transform: uppercase;
   color: #4dabf7;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 16px;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: #222;
+}
+
+.tab.active {
+  color: #1864ab;
+  border-bottom-color: #1864ab;
+  font-weight: 600;
+}
+
+.top-periods {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.top-periods-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.top-periods-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.top-periods-header label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #555;
+}
+
+.top-periods-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.top-periods-table th,
+.top-periods-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
+}
+
+.top-periods-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  font-weight: 500;
+}
+
+.top-periods-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.top-periods-table .rank {
+  width: 32px;
+  color: #888;
+}
+
+.top-periods-table tbody tr:hover {
+  background: #fafafa;
 }
 
 .panel {
